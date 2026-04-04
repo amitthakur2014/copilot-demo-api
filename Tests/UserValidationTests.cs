@@ -1,4 +1,5 @@
 using CopilotDemo.Models;
+using Xunit;
 
 namespace CopilotDemo.Tests
 {
