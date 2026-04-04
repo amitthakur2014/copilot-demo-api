@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using CopilotDemo.Models;
 
 namespace CopilotDemo.Controllers
 {
@@ -9,11 +10,18 @@ namespace CopilotDemo.Controllers
         [HttpGet]
         public IActionResult GetUser()
         {
-            var user = new
+            var user = new User
             {
                 Id = 1,
-                Name = "Amit"
+                Name = "Amit",
+                Email = "amit@example.com"
             };
+
+            // Validate email format
+            if (!user.IsEmailValid())
+            {
+                return BadRequest(new { error = "Invalid email format" });
+            }
 
             return Ok(user);
         }
