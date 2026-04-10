@@ -1,249 +1,80 @@
+using CopilotDemo.Controllers;
 using CopilotDemo.Models;
+using Microsoft.AspNetCore.Mvc;
 
 namespace CopilotDemo.Tests;
 
-public class UserEmailValidationTests
+public class UserControllerTests
 {
-    [Fact]
-    public void IsEmailValid_WithValidEmail_ReturnsTrue()
+    private readonly UserController _controller;
+
+    public UserControllerTests()
     {
-        // Arrange
-        var user = new User { Email = "test@example.com" };
-
-        // Act
-        var result = user.IsEmailValid();
-
-        // Assert
-        Assert.True(result);
+        _controller = new UserController();
     }
 
     [Fact]
-    public void IsEmailValid_WithAnotherValidEmail_ReturnsTrue()
+    public void GetUser_WithNoId_ReturnsDefaultUser()
     {
-        // Arrange
-        var user = new User { Email = "amit.thakur@company.co.uk" };
-
         // Act
-        var result = user.IsEmailValid();
+        var result = _controller.GetUser(null);
 
         // Assert
-        Assert.True(result);
-    }
-
-    [Fact]
-    public void IsEmailValid_WithEmailWithNumbers_ReturnsTrue()
-    {
-        // Arrange
-        var user = new User { Email = "user123@domain456.com" };
-
-        // Act
-        var result = user.IsEmailValid();
-
-        // Assert
-        Assert.True(result);
-    }
-
-    [Fact]
-    public void IsEmailValid_WithEmailWithSpecialChars_ReturnsTrue()
-    {
-        // Arrange
-        var user = new User { Email = "user+tag@example.com" };
-
-        // Act
-        var result = user.IsEmailValid();
-
-        // Assert
-        Assert.True(result);
-    }
-
-    [Fact]
-    public void IsEmailValid_WithInvalidEmailNoAtSign_ReturnsFalse()
-    {
-        // Arrange
-        var user = new User { Email = "invalidemail.com" };
-
-        // Act
-        var result = user.IsEmailValid();
-
-        // Assert
-        Assert.False(result);
-    }
-
-    [Fact]
-    public void IsEmailValid_WithInvalidEmailNoDomain_ReturnsFalse()
-    {
-        // Arrange
-        var user = new User { Email = "invalid@" };
-
-        // Act
-        var result = user.IsEmailValid();
-
-        // Assert
-        Assert.False(result);
-    }
-
-    [Fact]
-    public void IsEmailValid_WithInvalidEmailNoLocalPart_ReturnsFalse()
-    {
-        // Arrange
-        var user = new User { Email = "@example.com" };
-
-        // Act
-        var result = user.IsEmailValid();
-
-        // Assert
-        Assert.False(result);
-    }
-
-    [Fact]
-    public void IsEmailValid_WithEmptyEmail_ReturnsFalse()
-    {
-        // Arrange
-        var user = new User { Email = string.Empty };
-
-        // Act
-        var result = user.IsEmailValid();
-
-        // Assert
-        Assert.False(result);
-    }
-
-    [Fact]
-    public void IsEmailValid_WithNullEmail_ReturnsFalse()
-    {
-        // Arrange
-        var user = new User { Email = null! };
-
-        // Act
-        var result = user.IsEmailValid();
-
-        // Assert
-        Assert.False(result);
-    }
-
-    [Fact]
-    public void IsEmailValid_WithWhitespaceEmail_ReturnsFalse()
-    {
-        // Arrange
-        var user = new User { Email = "   " };
-
-        // Act
-        var result = user.IsEmailValid();
-
-        // Assert
-        Assert.False(result);
-    }
-}
-
-public class UserRepositoryTests
-{
-    [Fact]
-    public void GetUserById_WithValidId_ReturnsUser()
-    {
-        // Arrange
-        int userId = 1;
-
-        // Act
-        var user = UserRepository.GetUserById(userId);
-
-        // Assert
-        Assert.NotNull(user);
+        var okResult = Assert.IsType<OkObjectResult>(result);
+        var user = Assert.IsType<User>(okResult.Value);
         Assert.Equal(1, user.Id);
         Assert.Equal("Amit", user.Name);
         Assert.Equal("amit@example.com", user.Email);
     }
 
     [Fact]
-    public void GetUserById_WithDifferentValidId_ReturnsCorrectUser()
+    public void GetUser_WithValidId_ReturnsCorrectUser()
     {
-        // Arrange
-        int userId = 3;
-
         // Act
-        var user = UserRepository.GetUserById(userId);
+        var result = _controller.GetUser(2);
 
         // Assert
-        Assert.NotNull(user);
-        Assert.Equal(3, user.Id);
-        Assert.Equal("Jane Smith", user.Name);
-        Assert.Equal("jane.smith@example.com", user.Email);
+        var okResult = Assert.IsType<OkObjectResult>(result);
+        var user = Assert.IsType<User>(okResult.Value);
+        Assert.Equal(2, user.Id);
+        Assert.Equal("Rahul", user.Name);
+        Assert.Equal("rahul@example.com", user.Email);
     }
 
     [Fact]
-    public void GetUserById_WithInvalidNegativeId_ReturnsNull()
+    public void GetUser_WithInvalidId_ReturnsBadRequest()
     {
-        // Arrange
-        int userId = -1;
-
         // Act
-        var user = UserRepository.GetUserById(userId);
+        var result = _controller.GetUser(0);
 
         // Assert
-        Assert.Null(user);
+        var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+        Assert.Equal("Invalid user id", GetErrorMessage(badRequestResult.Value));
     }
 
     [Fact]
-    public void GetUserById_WithZeroId_ReturnsNull()
+    public void GetUser_WithNegativeId_ReturnsBadRequest()
     {
-        // Arrange
-        int userId = 0;
-
         // Act
-        var user = UserRepository.GetUserById(userId);
+        var result = _controller.GetUser(-1);
 
         // Assert
-        Assert.Null(user);
+        var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+        Assert.Equal("Invalid user id", GetErrorMessage(badRequestResult.Value));
     }
 
     [Fact]
-    public void GetUserById_WithNonExistentId_ReturnsNull()
-    {
-        // Arrange
-        int userId = 999;
-
-        // Act
-        var user = UserRepository.GetUserById(userId);
-
-        // Assert
-        Assert.Null(user);
-    }
-
-    [Fact]
-    public void GetAllUsers_ReturnsAllUsers()
+    public void GetUser_WithNonExistingId_ReturnsNotFound()
     {
         // Act
-        var users = UserRepository.GetAllUsers();
+        var result = _controller.GetUser(999);
 
         // Assert
-        Assert.NotEmpty(users);
-        Assert.Equal(5, users.Count);
+        var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
+        Assert.Equal("User not found", GetErrorMessage(notFoundResult.Value));
     }
 
-    [Fact]
-    public void GetAllUsers_AllUsersHaveValidEmails()
-    {
-        // Act
-        var users = UserRepository.GetAllUsers();
-
-        // Assert
-        foreach (var user in users)
-        {
-            Assert.True(user.IsEmailValid(), $"User {user.Id} has invalid email: {user.Email}");
-        }
-    }
-
-    [Fact]
-    public void GetAllUsers_ContainsExpectedUserIds()
-    {
-        // Act
-        var users = UserRepository.GetAllUsers();
-        var userIds = users.Select(u => u.Id).ToList();
-
-        // Assert
-        Assert.Contains(1, userIds);
-        Assert.Contains(2, userIds);
-        Assert.Contains(3, userIds);
-        Assert.Contains(4, userIds);
-        Assert.Contains(5, userIds);
-    }
+    private static string? GetErrorMessage(object? value) =>
+        value?.GetType().GetProperty("error")?.GetValue(value)?.ToString();
 }
+

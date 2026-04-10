@@ -6,7 +6,7 @@ namespace CopilotDemo.Models
         private static readonly Dictionary<int, User> Users = new()
         {
             { 1, new User { Id = 1, Name = "Amit", Email = "amit@example.com" } },
-            { 2, new User { Id = 2, Name = "John Doe", Email = "john.doe@example.com" } },
+            { 2, new User { Id = 2, Name = "Rahul", Email = "rahul@example.com" } },
             { 3, new User { Id = 3, Name = "Jane Smith", Email = "jane.smith@example.com" } },
             { 4, new User { Id = 4, Name = "Bob Wilson", Email = "bob.wilson@company.com" } },
             { 5, new User { Id = 5, Name = "Alice Johnson", Email = "alice.johnson@company.com" } }

@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CopilotDemo\CopilotDemo.csproj" />
+    <ProjectReference Include="..\CopilotDemo.csproj" />
   </ItemGroup>
 
 </Project>
