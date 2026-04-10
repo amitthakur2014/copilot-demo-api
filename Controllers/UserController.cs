@@ -21,7 +21,7 @@ namespace CopilotDemo.Controllers
             // Validate ID parameter (must be positive)
             if (userId <= 0)
             {
-                return BadRequest(new { error = "User ID must be greater than 0" });
+                return BadRequest(new { error = "Invalid user id" });
             }
 
             // Retrieve user from repository
@@ -30,7 +30,7 @@ namespace CopilotDemo.Controllers
             // Return 404 if user not found
             if (user == null)
             {
-                return NotFound(new { error = $"User with ID {userId} not found" });
+                return NotFound(new { error = "User not found" });
             }
 
             // Validate email format
